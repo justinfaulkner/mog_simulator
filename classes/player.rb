@@ -13,7 +13,7 @@ class Player
   def stats
     puts "#{@name} - Power: #{total_power} MW, $#{@money}. Cards: #{@cards.count}. Tiers: "
     @tiers.each_with_index do |value, index|
-      puts "#{value[0]}: #{value[1]}"
+      print "#{value[0]}: #{value[1]}, "
     end
   end
 
@@ -118,10 +118,10 @@ class Player
     has_plot? plot_size
   end
 
-  def has_plot? size
-    return true if size == :xs
+  def has_plot? needed_size
+    return true if needed_size == :xs
     @plots.find do |plot|
-      plot.size == size
+      plot.can_fit?(needed_size)
     end
   end
 

@@ -36,8 +36,8 @@ class Game
     no_winner = true
     @phases.each do |phase|
       winner = phase.go @players, self
-      # puts "[ENTER] when ready"
-      # gets
+      puts "[ENTER] when ready"
+      gets
       if winner
         puts "Player #{winner} has won!"
         no_winner = false

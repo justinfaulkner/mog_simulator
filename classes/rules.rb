@@ -8,10 +8,12 @@ class Rules
   end
 
   def take_action player, action, args = {}
-    puts "*** #{player} is using #{action} for #{args.inspect}"
+    puts "*** #{player} is using #{action}... #{args.inspect}"
     case action
       when :build
         build player, args
+      when :draw_card
+        draw_card player, args
       when :plot_shop
         plot_shop player, args
       else
@@ -27,6 +29,10 @@ class Rules
     plot = player.use_plot card.required_plot_size
     player.play_card card.copy, plot
     puts "Bought #{card}!"
+  end
+
+  def draw_card player, args = {}
+
   end
 
   def plot_shop player, args = {}

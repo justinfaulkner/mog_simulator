@@ -54,59 +54,13 @@ class CardFinder
   end
 end
 
-
-
-class AlwaysBuyStrat
-  def self.take_turn player
-    tier_order = player.tier_order
-    bought_card = false
-    player.take_action :plot_shop
-    tier_order.each do |family|
-      best_card = player.find_best_card(family)
-      puts "Family: #{family.inspect}"
-      puts "Best card: #{best_card}"
-      if player.has_compatible_plot(best_card)
-        bought_card = try_to_build best_card, player
-        break if bought_card
-      else
-        puts "Can't build best card, no compatible plot..."
-      end
-    end
-    unless bought_card
-      tier_order.each do |family|
-        second_best_card = player.find_next_best_card(family)
-        puts "Second Best card: #{second_best_card}"
-        if player.has_compatible_plot(second_best_card)
-          bought_card = try_to_build second_best_card, player
-          break if bought_card
-        else
-          puts "Can't build second best card, no compatible plot..."
-        end
-      end
-    end
-  end
-
-  def self.try_to_build card, player
-    bought_card = false
-    puts "Have a compatible plot!"
-    puts player.plot_stats
-    if player.can_afford_card card
-      player.take_action :build, card: card
-      bought_card = true
-    else
-      puts "... but can't afford card..."
-    end
-    bought_card
-  end
-end
-
 sum = 0
 min = 100
 max = 0
 games = 1
 afford_blocked = 0
 games.times do
-  p1 = Player.new 'p1', strat: AlwaysBuyStrat
+  p1 = Player.new 'p1', strat: BestStrat
   p1.tier_order = [:wind, :solar]
   p2 = Player.new 'p2'
 
