@@ -18,7 +18,7 @@ class Card
 
   def to_s
     family = @family.upcase
-    "[#{family} - T#{@tier}] #{'DAMAGED' if @damaged}"
+    "#{family} T#{@tier} #{@power}MW, P#{@attached_plot.family if @attached_plot} #{'** DAMAGED **' if @damaged}"
   end
 
   def actual_power
@@ -45,5 +45,9 @@ class Card
 
   def mark_damaged
     @damaged = true
+  end
+
+  def fix
+    @damaged = false
   end
 end

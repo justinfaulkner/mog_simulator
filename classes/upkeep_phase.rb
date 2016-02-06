@@ -1,6 +1,6 @@
 class UpkeepPhase
   def go players, game
-    puts "Starting Upkeep!"
+    puts "== UPKEEP =="
     winner = false
     players.each do |player|
       player.upkeep
@@ -8,7 +8,6 @@ class UpkeepPhase
         winner = player
       end
     end
-    puts "Done with upkeep!"
     return winner
   end
 end

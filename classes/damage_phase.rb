@@ -1,9 +1,9 @@
 class DamagePhase
   def go players, game
+    puts "== DAMAGE =="
     players.each do |player|
       check_damage player
     end
-    puts "Done with Damage phase!"
     return false
   end
 
@@ -28,6 +28,8 @@ class DamagePhase
   def damage_card card, player
     puts "Damaging card: #{card.to_s}"
     card.mark_damaged
+    puts "Damage percent is now: #{player.broken_percent}"
+    player.card_stats
     player.upset_locals if card.family == :nuclear
   end
 

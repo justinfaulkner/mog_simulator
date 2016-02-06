@@ -1,6 +1,6 @@
 class Player
   attr_accessor :money, :name, :tiers, :cards, :game, :plots, :couldnt_afford_count, :tier_order
-  attr_accessor :upsets
+  attr_accessor :upsets, :hand
 
   def initialize name, options = {}
     @name = name
@@ -11,14 +11,14 @@ class Player
   end
 
   def stats
-    puts "#{@name} - Power: #{total_power} MW, $#{@money}. Cards: #{@cards.count}. Tiers: "
+    print "#{@name} - Power: #{total_power} MW, $#{@money}. Cards: #{@cards.count}. Tiers: "
     @tiers.each_with_index do |value, index|
       print "#{value[0]}: #{value[1]}, "
     end
+    puts
   end
 
   def go
-    puts "Starting - #{@name}"
     stats
     @strat.take_turn self if @strat
   end
@@ -57,6 +57,7 @@ class Player
     our_card = card.copy
     our_card.attach_plot plot
     @cards << our_card
+    our_card
   end
 
   def pay_bank cost
@@ -65,6 +66,10 @@ class Player
 
   def find_best_card family
     CardFinder.find(family, current_tier(family))
+  end
+
+  def find_card family, tier, version = 0
+    CardFinder.find(family, tier, version)
   end
 
   def find_next_best_card family
@@ -102,9 +107,16 @@ class Player
       upgrade_family family if can_upgrade family
     end
     stats
+    card_stats
+    plot_stats
+  end
+
+  def research family
+    upgrade_family family
   end
 
   def upgrade_family family
+    puts "upgrading family #{family}"
     tiers[family] += 1
     puts "#{family} upgraded! now is #{tiers[family]}"
   end
@@ -125,38 +137,66 @@ class Player
     end
   end
 
+  def gain_card card
+    return unless card
+    @cards << card
+  end
+
   def gain_plot plot
     return unless plot
     @plots << plot
   end
 
   def plot_stats
-    puts @plots.map{|plot|plot.size}.inspect
+    puts @plots.map{|plot|[plot.size, plot.family]}.inspect
   end
 
-  def use_plot plot_size
-    plot = @plots.delete @plots.find{|plot| plot.size == plot_size}
-    puts "used #{plot_size}, now have: "
+  def find_perfect_plot size, family
+    @plots.find{|plot| plot.size == size && plot.family.include?(family)}
+  end
+
+  def find_awesome_plot size, family
+    @plots.find{|plot| plot.can_fit?(size) && plot.family.include?(family)}
+  end
+
+  def use_plot plot_size, family
+    if plot_size == :xs
+      awesome_plot = find_perfect_plot :xs, :solar
+      awesome_plot = find_awesome_plot :xs, :solar if awesome_plot.nil?
+      if awesome_plot
+        puts "BUILD: xs, but had a matching solar plot, so using that instead of free one!"
+        @plots.delete awesome_plot
+        return awesome_plot
+      end
+      puts "BUILD: using a free xs plot!"
+      return Plot.new(:xs, [:none])
+    end
+    matching_plot = find_perfect_plot plot_size, family
+    matching_plot = find_awesome_plot plot_size, family if matching_plot.nil?
+    matching_plot = @plots.find{|plot| plot.size == plot_size } if matching_plot.nil?
+    matching_plot = @plots.find{|plot| plot.can_fit?(plot_size)} if matching_plot.nil?
+    plot = @plots.delete  matching_plot
+    print "used #{matching_plot.size}, #{matching_plot.family}, now have: "
     plot_stats
     plot
   end
 
   def card_stats
-    puts "[] #{@cards.count}"
-    @cards.map do |c|
-      plot_family = ''
-      if c.attached_plot
-        plot_family = c.attached_plot.family
-      end
-      x = "#{c.family} T#{c.tier} #{c.power}MW, P #{plot_family}"
-      puts x
-      x
-    end
+    puts "Built cards:  #{@cards.count}"
+    puts @cards.map{|c|c.to_s}
   end
 
   def upset_locals
     @upsets ||= 0
     @upsets += 1
+  end
+
+  def broken_percent
+    return 0.0 if @cards.count == 0
+    damaged_count = @cards.select{|card|card.damaged}.count
+    percent = (damaged_count + 0.0)/@cards.count
+    puts "Damage percent is: #{percent}"
+    percent
   end
 
   def to_s

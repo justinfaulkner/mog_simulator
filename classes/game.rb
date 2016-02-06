@@ -17,6 +17,7 @@ class Game
 
   def setup_decks
     @plot_deck = PlotDeck.new
+    @card_deck = CardDeck.new
   end
 
   def start
@@ -52,6 +53,10 @@ class Game
 
   def draw_plot
     @plot_deck.draw
+  end
+
+  def draw_card
+    @card_deck.draw
   end
 
   def won? player

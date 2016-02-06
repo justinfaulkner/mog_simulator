@@ -1,11 +1,10 @@
 class CollectPhase
   def go players, game
-    puts "Stating Collect phase!"
+    puts "== COLLECT =="
     players.each do |player|
       earnings = player.collect_money
-      puts "Player #{player.to_s} earned $#{earnings}"
+      puts "#{player.to_s} earned $#{earnings}... now: $#{player.money}"
     end
-    puts "Done with Collect phase!"
     return false
   end
 end
